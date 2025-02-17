@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecasting App</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .weather-info {
+            margin-top: 20px;
+            text-align: center;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .weather-icon {
+            width: 100px;
+            height: 100px;
+            margin: 10px auto;
+            background-size: cover;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Weather Forecasting App</h1>
+        <form id="weatherForm">
+            <label for="city">Enter City Name:</label>
+            <input type="text" id="city" name="city" placeholder="e.g., London" required>
+            <button type="submit">Get Weather</button>
+        </form>
+        <div id="weatherInfo" class="weather-info">
+            <!-- Weather information will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        const weatherIcons = {
+            'Sunny': 'https://cdn-icons-png.flaticon.com/512/979/979585.png',
+            'Clear': 'https://cdn-icons-png.flaticon.com/512/979/979585.png',
+            'Cloudy': 'https://cdn-icons-png.flaticon.com/512/1146/1146869.png',
+            'Rainy': 'https://cdn-icons-png.flaticon.com/512/1163/1163657.png',
+            'Snowy': 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png',
+            'Thunderstorm': 'https://cdn-icons-png.flaticon.com/512/1146/1146866.png',
+            'default': 'https://cdn-icons-png.flaticon.com/512/1146/1146869.png'
+        };
+
+        document.getElementById('weatherForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const city = document.getElementById('city').value;
+            const apiKey = '88047759bfa845ad981160642251702'; // Your API key
+            const apiUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=yes`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('City not found. Please try again.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const weatherInfo = document.getElementById('weatherInfo');
+                    const location = data.location;
+                    const current = data.current;
+                    const condition = current.condition.text;
+
+                    // Set weather icon based on condition
+                    const iconUrl = weatherIcons[condition] || weatherIcons['default'];
+
+                    weatherInfo.innerHTML = `
+                        <div class="weather-icon" style="background-image: url('${iconUrl}');"></div>
+                        <p><strong>City:</strong> ${location.name}, ${location.region}, ${location.country}</p>
+                        <p><strong>Temperature:</strong> ${current.temp_c}°C</p>
+                        <p><strong>Condition:</strong> ${condition}</p>
+                        <p><strong>Humidity:</strong> ${current.humidity}%</p>
+                        <p><strong>Wind Speed:</strong> ${current.wind_kph} km/h</p>
+                    `;
+                })
+                .catch(error => {
+                    const weatherInfo = document.getElementById('weatherInfo');
+                    weatherInfo.innerHTML = `<p class="error">${error.message}</p>`;
+                });
+        });
+    </script>
+</body>
+
+</html>
